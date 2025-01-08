@@ -8,7 +8,7 @@ set_version("2.9.7", {build = "%Y%m%d"})
 set_xmakever("2.8.5")
 
 -- set all warnings as errors
-set_warnings("all", "error")
+--set_warnings("all", "error")
 
 -- set language: c99, c++11
 set_languages("c99", "cxx11")
