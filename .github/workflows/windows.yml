@@ -60,7 +60,7 @@ jobs:
           xmake f -vD -a ${{ matrix.arch }} --embed=y -c
           xmake
           xmake l os.cp build/xmake.exe ../artifacts/${{env.RELEASE_NAME}}/xmake-bundle.exe
-          xmake f -vD -a ${{ matrix.arch }} -c
+          xmake f -vD -a ${{ matrix.arch }} --vs_toolset=14.0 -c
           xmake -vD
           cd ..
 
