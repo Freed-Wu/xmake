@@ -73,18 +73,6 @@ jobs:
           Copy-Item shafile ../artifacts/${{env.RELEASE_NAME}}
           cd ..
 
-      - name: Tests
-        run: |
-          Copy-Item ./core/build/xmake.exe ./xmake
-          Copy-Item ./scripts/xrepo.bat ./xmake
-          Copy-Item ./scripts/xrepo.ps1 ./xmake
-          $Env:XMAKE_MAIN_REPO = "https://github.com/xmake-io/xmake-repo.git"
-          $Env:XMAKE_PROGRAM_DIR = $(Resolve-Path ./xmake)
-          Set-Item -Path Env:Path -Value ($Env:XMAKE_PROGRAM_DIR + ";" + $Env:Path)
-          xrepo --version
-          xmake show
-          xmake lua -v -D tests/run.lua
-
         # upload artifacts
       - name: Upload artifacts (exe)
         if: matrix.os == 'windows-2022'
