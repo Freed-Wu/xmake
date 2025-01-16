@@ -20,7 +20,8 @@
 
 rule("python.cython")
     set_extensions(".py", ".pyx")
-    on_load(function(target)
+
+    on_load(function (target)
         local language = target:extraconf("rules", "python.cython", "language")
         if language == "c" then
             target:add("deps", "c")
@@ -28,8 +29,11 @@ rule("python.cython")
             target:add("deps", "c++")
         end
     end)
-    before_buildcmd_file(function(target, batchcmds, sourcefile, opt)
+
+    before_buildcmd_file(function (target, batchcmds, sourcefile, opt)
         import("lib.detect.find_tool")
+
+        local cython = assert(find_tool("cython"), "cython not found! please `pip install cython`.")
         local language = target:extraconf("rules", "python.cython", "language")
         local ext
         local arg = "-3"
@@ -49,10 +53,7 @@ rule("python.cython")
         -- add commands
         batchcmds:show_progress(opt.progress, "${color.build.object}compiling.python %s", sourcefile)
         batchcmds:mkdir(path.directory(sourcefile_c))
-        local cython = find_tool("cython")
-        assert(cython, "cython not found! please `pip install cython`.")
-        batchcmds:vrunv(cython.program,
-            { arg, "-o", path(sourcefile_c), path(sourcefile) })
+        batchcmds:vrunv(cython.program, {arg, "-o", path(sourcefile_c), path(sourcefile)})
         batchcmds:compile(sourcefile_c, objectfile)
 
         -- add deps
