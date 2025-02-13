@@ -601,9 +601,6 @@ function _get_configs_for_mingw(package, configs, opt)
     if is_subhost("windows") and opt.cmake_generator ~= "Ninja" then
         envs.CMAKE_MAKE_PROGRAM = _get_mingw32_make(package)
     end
-    if opt.cmake_generator == "Ninja" then
-        envs.CMAKE_MAKE_PROGRAM = "ninja"
-    end
     _fix_cxx_compiler_cmake(package, envs)
     _insert_configs_from_envs(configs, envs, opt)
 end
@@ -618,12 +615,7 @@ function _get_configs_for_wasm(package, configs, opt)
     assert(emscripten_cmakefile, "Emscripten.cmake not found!")
     table.insert(configs, "-DCMAKE_TOOLCHAIN_FILE=" .. emscripten_cmakefile)
     if is_subhost("windows") then
-        if opt.cmake_generator == "Ninja" then
-            local ninja = _get_ninja(package)
-            if ninja then
-                table.insert(configs, "-DCMAKE_MAKE_PROGRAM=" .. ninja)
-            end
-        else
+        if opt.cmake_generator ~= "Ninja" then
             local mingw_make = _get_mingw32_make(package)
             if mingw_make then
                 table.insert(configs, "-DCMAKE_MAKE_PROGRAM=" .. mingw_make)
@@ -684,6 +676,7 @@ function _get_configs_for_cross(package, configs, opt)
             system_name = "Windows"
         end
         envs.CMAKE_SYSTEM_NAME = system_name
+        envs.CMAKE_SYSTEM_PROCESSOR = _get_cmake_system_processor(package)
     end
     if not package:is_plat("windows", "mingw") and package:config("pic") ~= false then
         table.insert(configs, "-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
@@ -782,6 +775,10 @@ function _get_configs_for_generator(package, configs, opt)
                 table.insert(configs, "-DCMAKE_JOB_POOL_COMPILE:STRING=compile")
                 table.insert(configs, "-DCMAKE_JOB_POOL_LINK:STRING=link")
                 table.insert(configs, ("-DCMAKE_JOB_POOLS:STRING=compile=%s;link=%s"):format(jobs, linkjobs))
+            end
+            local ninja = _get_ninja(package)
+            if ninja then
+                table.insert(configs, "-DCMAKE_MAKE_PROGRAM=" .. ninja)
             end
         end
     elseif package:is_plat("mingw") and is_subhost("msys") then
@@ -1099,7 +1096,7 @@ function _build_for_cmakebuild(package, configs, opt)
         table.insert(argv, "--target")
         if #targets > 1 then
             -- https://stackoverflow.com/questions/47553569/how-can-i-build-multiple-targets-using-cmake-build
-            if _get_cmake_version():ge("3.15") then
+            if _get_cmake_version() and _get_cmake_version():ge("3.15") then
                 table.join2(argv, targets)
             else
                 raise("Build multiple targets need cmake >=3.15")
@@ -1248,7 +1245,7 @@ function _shrink_cmake_arguments(argv, oldir, opt)
     local shrink = false
     local add_compile_options = false
     local add_link_options = false
-    if _get_cmake_version():ge("3.13") then
+    if _get_cmake_version() and _get_cmake_version():ge("3.13") then
         add_compile_options = true
         add_link_options = true
     end

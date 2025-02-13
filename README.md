@@ -102,7 +102,7 @@ wget https://xmake.io/shget.text -O - | bash
 ### With PowerShell
 
 ```sh
-Invoke-Expression (Invoke-Webrequest 'https://xmake.io/psget.text' -UseBasicParsing).Content
+irm https://xmake.io/psget.text | iex
 ```
 
 ### Other installation methods
@@ -246,6 +246,10 @@ iverilog      Icarus Verilog
 verilator     Verilator open-source SystemVerilog simulator and lint system
 cosmocc       build-once run-anywhere
 hdk           Harmony SDK
+ti-c2000      TI-CGT C2000 compiler
+ti-c6000      TI-CGT C6000 compiler
+iararm        IAR ARM C/C++ Compiler
+kotlin-native Kotlin Native Programming Language Compiler
 ```
 
 ## Supported languages
@@ -269,6 +273,7 @@ hdk           Harmony SDK
 * YASM
 * MASM32
 * Cppfront
+* Kotlin
 
 ## Features
 
